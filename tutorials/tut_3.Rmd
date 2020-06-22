@@ -1,6 +1,8 @@
 ---
 title: "Tutorial 3 | R Programming"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -122,6 +124,7 @@ Scoping rules determine how a value is associated with a free variable in a func
 Lexical Scoping in R means that the values of free variables are searched for in the environment in which the function was defined.
 For example: 
 ```{r}
+x<-8
 some_fun <- function(a,b){
   (a+b)*x
 }
