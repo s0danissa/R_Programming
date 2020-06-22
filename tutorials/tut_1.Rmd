@@ -1,0 +1,135 @@
+---
+title: "1st tut"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R objects and attributes
+## R Objects
+There are five basic(atomic) classes of objects:
+
+- character
+- numeric("1" is just a numeric object, but typing "1L" makes it specifically integer/"Inf" - infinity/"NaN" - not a number or a missing number)
+- integer
+- complex
+- logical
+
+The most basic object is a vector. The vector could only contain items of one class. 
+However, there are **lists** which are just like vectors, but can contain multiple objects of different classes
+
+## Attributes
+
+Attributes of an object could be accessed using attributes()
+
+- names, dimnames
+- dimensions
+- class
+- length
+- other user-defined attributes
+
+```{r vectors}
+x <- c(2,3,4,5)
+y <- vector("numeric", length=10)
+print(x)
+print(y)
+```
+## Explicit coercion
+
+Objects can be explicitly coerced from one type to another using as.* functions.
+
+```{r coercion}
+a <- as.character(x)
+class(a)
+print(a)
+```
+
+## Lists
+
+```{r lists}
+student <- list(first_name = "John", last_name = "Holmes",age = 19, enrolled = T)
+print(student)
+```
+
+## Matrices
+
+Matrices are basically vectors with the dimension attribute. Matrices are conctructed column-wise, meaning entries are starting from the upper left corner of the matrix and running down/"filling in" the columns
+
+```{r matrices}
+m <- matrix(1:6,nrow = 3, ncol = 2)
+print(m)
+dim(m)
+```
+
+Matrices can also be directly created from vectors by assigning dim attributes. For example the vector x we created earlier could be turned into matrix:
+
+```{r vector-matrix}
+dim(x) <- c(2,2)
+print(x)
+```
+
+Matrices could also be created using **column-binding** or **row-binding**:
+
+```{r binding}
+c1 <- 1:4
+c2 <- 5:8
+cf <- cbind(c1,c2)
+cf
+
+rf <- rbind(c1,c2)
+rf
+```
+
+## Factors
+
+Factor is a type of data used to represent categorical data. Factors can be unordered or ordered. **Ex. "Male"/"Female" (unordered)**
+You can of think of the factor as an integer vector, where each vector has a label.
+
+```{r factor}
+t <- factor(c("yes","yes","no","yes"),
+levels = c("yes","no"))
+## this is done in order to determine the baseline level of the factor(in basic configuration "no" would have beel the first level since they are automatically ordered in an alphabetical basis) now "yes" is the first level, and "no" is the second
+print(t) 
+table(t) ##prints out the table describing factors
+unclass(t) ##prints out details of the factor vector
+```
+
+## Missing values
+
+NaN - undefined mathematical operations, NA - everything that is missing. To test this we use functions is.na(), is.nan()
+
+```{r NA}
+e <- c(1,4,7,NA,0)
+is.na(e)
+e <- c(1,4,NaN,NA,0)
+is.na(e)
+is.nan(e)
+```
+
+## Data frames
+
+Data frames are used to store tabular data. Unlike matrices, data frames can store different classes of objects in each column(just like lists).
+Data frames also have an attribute called row.names()
+Data frames are ususally created by calling read.csv(), read.table() or data.frame()
+They also can be converted into matrix using data.matrix().
+
+```{r data frames}
+b <- data.frame(ID=1:3, Names =c("John","Marry","Elena"),Passed=c(T,F,T))
+b
+nrow(b)
+ncol(b)
+```
+
+## Names attribute
+
+In order to increase the redability of the code and make objects self-describing the names attribute could be added.
+
+```{r names}
+names(c1) <- c("col1","col2","col3","col4")
+c1
+dimnames(x) <- list(c("row1","row2"),c("col1","col2")) ##names for matrices
+x
+```
+
