@@ -1,5 +1,5 @@
 ---
-title: "tut_2"
+title: "Tutorial 2 | Working with data"
 output:
   pdf_document: default
   html_document: default

@@ -1,5 +1,5 @@
 ---
-title: "Tutorial 3 | R Programming"
+title: "Tutorial 3 | Control Structures and Functions"
 output:
   pdf_document: default
   html_document: default
