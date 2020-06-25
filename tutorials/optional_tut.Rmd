@@ -1,0 +1,15 @@
+---
+title: "Optional Tutorial | Coding standards for R"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Coding Standards
+
+- Always use text files/text editor (because it can be read by almost any editing programm)
+- Indent your code (for readability purposes mostly)
+- Limit the width of your code
+- Limit the length of indivivual functions (more readable and easier to debug)

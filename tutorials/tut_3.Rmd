@@ -131,4 +131,67 @@ some_fun <- function(a,b){
 some_fun(1,2)
 ```
 
-So this code above works even though x wasn't defined anywere in the function (it is a free variable), but it was previously defined while we called other functions, so it is now "saved" in the environment.
+So this code above works even though x wasn't defined anywere in the function (it is a free variable), but it was previously defined, so it is now "saved" in the environment.
+
+This also leads us to the specifity of R funtions, which is the return of the function doesn't necessarily have to be a variable, it can be a function. For example, we need a function that creates another function that raises a given number into a certain power:
+```{r}
+make.power <- function(n){
+  pow<-function(x){
+    x^n
+  }
+  pow
+}
+square_it<-make.power(2)
+cube_it<- make.power(3)
+cube_it(3)
+square_it(2)
+```
+
+## Dates and Times in R
+
+- Dates are represented by the *Date* class
+- Times are represented by the *POSIXct* or the *POSIXlt* class
+- Dates are stored internally as the number of days since 1970-01-01
+- Times are stored internally as the number of seconds since 1970-01-01
+
+### Dates 
+
+```{r}
+x<- as.Date("1970-01-03")
+x
+unclass(x) ##outputs the amount of days since 1970-01-01
+```
+
+### Times
+
+- POSIXct is actually just a very large integer; it is useful when you want to store times in something like a data frame
+- POSIXlt is a actually a list that stores some other useful information like day of the week,  day of the year, month and day of the month
+
+There are a number of generic functions that work on dates and times:
+
+- *weekdays*: gives the day of the week
+- *months*: gives the mounth name
+- *quarters*: gives the quarter number("Q1","Q2","Q3","Q4")
+
+```{r}
+curr_time <- Sys.time()
+curr_time
+P_curr_time <- as.POSIXlt(curr_time)
+names(unclass(P_curr_time)) #what is inside of the created POSIXlt data frame
+P_curr_time$mon
+```
+
+Finally there is a function that converts strings into dates format:
+```{r}
+date_x<-strptime("05/05/2014 14:23", "%m/%d/%Y %H:%M")
+date_x
+```
+
+And yo can also do various ariphmetical and coperison operations on those date and times formats:
+```{r}
+date_y<-as.Date("2015-05-19")
+date_y<-as.POSIXlt(date_y)
+date_y-date_x
+```
+
+Good thing that R date types also keep track of leap years, leaps seconds, daylight saving and time zones.
