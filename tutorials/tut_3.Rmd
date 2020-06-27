@@ -108,7 +108,7 @@ Functions have named arguments that can have default values, which makes it easi
 - Function arguments can be missing or might have defalut values
 - When calling a function, if the input arguments are named they are not supposed to be called in the special order
 
-Interesting feature of functions in R is that their arguments are evaluated using so-called *laxy evaluation*, meaning that if the argument is not used in the body of the function it doesn't have a need to be specified at all when calling the fucntion. For example:
+Interesting feature of functions in R is that their arguments are evaluated using so-called *lazy evaluation*, meaning that if the argument is not used in the body of the function it doesn't have a need to be specified at all when calling the fucntion. For example:
 ```{r}
 fun <- function (a,b){
   a^2
