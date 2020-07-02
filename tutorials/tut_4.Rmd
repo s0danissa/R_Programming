@@ -1,28 +1,224 @@
 ---
-title: "tut_4"
+title: "Tutorial 4 | Loop functions"
 output: pdf_document
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+## Loop functions
 
-## R Markdown
+Using for/while loops is useful for writing scripts, but aren't particularly easy when working interactively on the command line. There are some functions which implement looping to make life easier:
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+- **lapply**: Loop over a list and evaluate a function on each element
+- **sapply**: same as previous one, but simplifies the results
+- **apply**: apply a function of a margins of array
+- **tapply**: apply a function over subsets of a vector
+- **mapply**: multivariate version of apply
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+### Lapply
+lapply takes three arguments:
 
-```{r cars}
-summary(cars)
+- a list **X** (note that if X is not a list, it will be coerced to a list using as.list)
+- a function (or the name of the function) FUN
+- other arguments via its **...** argument
+```{r}
+lapply
+```
+So, it takes an object and a function that it needs to apply and returns a list, regardless of the class of the input object:
+```{r}
+x<-list(a=1:5,b=rnorm(10)) # a: ints from 1 to 5,
+# b: 10 random normal numbers
+lapply(x,mean)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+If there are default values of a function that you want to specify, then you can also do it in the lapply function after the name of the function:
+```{r}
+x<-1:4
+lapply(x, runif, min=0, max=10)
+#runif is a function that takes N as an argument and generates N
+#random normal variables (if max is not defined the default range is 0 to 1)
+```
+What you can also do is you can use anonymous functions in lapply. That means that you can create functions on the go if they don't have a name already. For example I want to extract  the first row of each matrix in a list of matrices:
+```{r}
+x<-list(a=matrix(1:4,2,2), b= matrix(1:6,3,2))
+lapply(x,function(elt) elt[ ,1])
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Sapply
+
+sapply is a version of lapply simplifies a result of laplly if possible:
+
+- If the result is a list where every element is length 1, then a vector is returned
+- If the result is a list where every element is a vector of the same length (>1), a matrix is returned
+- If it can't figure things out, a regular list is returned
+
+For example recall the first example with lapply:
+```{r}
+x<-list(a=1:5,b=rnorm(10)) # a: ints from 1 to 5,
+# b: 10 random normal numbers
+#This is what lapply does
+lapply(x,mean)
+#This is what sapply does
+sapply(x,mean)
+```
+
+### Apply
+
+apply used to evaluate a function (often an anonymous one) over the margins of array
+
+- It is most often used to apply a function to the rows or columns of a matrix
+- It can be used with general arrays, e.g. taking the average of an array of matrices
+- It is not really faster than writing a loop (which was the case in the old versions of S language), but it works in one line, so.
+
+```{r}
+str(apply)
+```
+So here:
+
+- X is an array
+- MARGIN is an integer vector indicating which margins should be used when applying function to them
+- FUN is a function to be applied
+- ... is for other arguments to be passed to FUN
+
+```{r}
+x<- matrix(rnorm(200),20,10)
+#This gives the mean of each row of the matrix
+apply(x,1,mean)
+#This gives the sum of elements in of each column
+apply(x,2,sum)
+```
+
+So to explain why 1 and why 2 think about this:
+Matrix is defined usually by rows(1) x columns(2), so the number represents the number of dimension across which the function should be applied. Meaning that in this case, 1 represents first dimension of the matrix (namely across each row), while the 2 represents second dimension, namely across each column.  
+
+However, for simple operations like calculating means of the rows, or for example sums of elements in each columns there exist special functions to do so:
+
+- rowSums: same as using apply(x,1,sum)
+- colSums: same as using apply(x,2,sum)
+- rowMeans: same as using apply(x,1,mean)
+- colMeans: same as using apply(x,2,mean)
+
+These are way easier to use and memorize than using plain apply with arguments.
+
+### Mapply
+
+mapply is a multivariable version of presious functions. Meaning that, for example in lapply the input argument needed to be the list and the function is applied over the elements of that list, but with mapply you can pass multiple lists and the function would be applied to them in parralel (at the same time)
+```{r}
+str(mapply)
+```
+
+- FUN is a function to apply
+- ... contains arguments to apply over 
+- MoreArgs is a list of other arguments that are needed to be passed to a function
+- SIMPLIFY indicates whether the result should be simplified
+
+For example you need to  create a list of four 1's, three 2's, two 3's and one 4, namely something that looks like this:
+```{r}
+j<-list(rep(1,4),rep(2,3),rep(3,2),rep(4,1))
+#See how tefious it is to type this in?
+j
+```
+
+Now using mapply it would be way shorter and harder to mess things up:
+```{r}
+j<-mapply(rep,1:4,4:1)
+j
+```
+
+### Tapply
+
+tapply is used to apply the function over subsets of a vector.(idk why it's called Tapply tho)
+```{r}
+str(tapply)
+```
+
+- X is a vector
+- INDEX is a fector or a list of factors(or else they would be coerced to factors)
+- FUN is the function to be applied
+- ... contains other arguments to be passed to FUN
+- simplify tells whether we should simplify the result or not
+```{r}
+x<-c(rnorm(10), runif(10), rnorm(10,1))
+fact<-gl(3,10)
+#these are the factors
+#using factors we define categories
+fact
+#meaning that we want to find means of three categories corresponding to factors 'fact' in data vector 'x'
+tapply(x,fact,mean)
+
+```
+
+### Split
+Split takes a vector or other object and splits it into groups determined by a factor or list of factors.
+
+```{r}
+str(split)
+```
+
+- x is a vector, list or a dataframe
+- f is factor or the list of factors
+- drop indicates whether empty factors levels should be dropped
+
+```{r}
+#Let's take vectors from the previous example
+split(x,fact)
+```
+
+Even though it is not initially clear how split could be helpful, keep in mind that this function is able to manipulate much more complicated types of data. For example
+
+```{r}
+#Let's load standard dataset "airquality" from the "datasets" library
+library(datasets)
+head(airquality)
+```
+
+Let's assume you need to calculate the means of the ozone, colar radiation, wind and temperature data in each month. Here is where split function comes in-handy:
+
+```{r}
+#So first we use split on airquality dataset, and we take Month
+#as a list of factor for categorization
+spl<-split(airquality,airquality$Month)
+#And now we can use lapply on each of the months in splitted 
+#function and calculate their means using collMeans
+lapply(spl,function(x) colMeans(x[,c("Ozone","Solar.R", "Wind","Temp")]))
+```
+
+Now you can probably see that this formulation of the result isn't really comfortable to read and the matrix would be much better. For that we can use sapply:
+```{r}
+#Notice that we also add na.rm=TRUE so that we consider only
+#complete cases
+spl_m<-sapply(spl,function(x) colMeans(x[,c("Ozone","Solar.R", "Wind","Temp")], na.rm=TRUE))
+spl_m
+```
+
+And now just for convenience we can change the names of the columns so that it would be easier to understand the data:
+
+```{r}
+colnames(spl_m)<-c("May","June","July","August","September")
+spl_m
+#Much better!
+```
+
+One thing to note is that split can be used with more than just one factor:
+
+```{r}
+x<-rnorm(10)
+#Fator 1:
+f1<-gl(2,5)
+f1
+#Factor 2:
+f2<-gl(5,2)
+f2
+#Now just to see how the combination of those factors would
+#look like:
+interaction(f1,f2)
+#So in other words it contains every possible combimation of all factor lists
+str(split(x,list(f1,f2)))
+#Now as you can see some levels are empty, because as well as in
+#real datasets you would probably have some combinations of 
+#factors that just don't exist in your dataset. And to eliminate
+#those cases from the results we use 'drop' argument (set to 
+#TRUE):
+str(split(x,list(f1,f2), drop=TRUE))
+```
+
