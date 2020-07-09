@@ -1,0 +1,189 @@
+---
+title: "Tutorial 6 | Simulation and Profiling"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The str Function
+
+str ('structure') - a diagnostic function that compactly displays the internal structure of an R object. It is almost like a help page but faster and shorter, and also can be applied to any type of object not just functions
+
+```{r}
+# Let's suppose I want to know what the fucntion mean takes as 
+#arguments
+str(mean)
+# Or maybe if I have a vector and I want to look at it briefly
+x<-rnorm(100,2,4)
+str(x)
+# And in this case summary will produce kind of the same output:
+summary(x)
+# But what if I have a really long vector of factors?
+# f is a vector of factors with 40 levels and each one is repeated
+# 10 times
+f<- gl(40, 10)
+str(f)
+```
+\newpage
+```{r}
+# Now this gives us again a very compact information on what f is all
+# about, and let's see what does summary will give us as an output?
+summary(f)
+# Well this one isn't really formative tbh
+```
+
+It also gives a little more information that might be useful about data frames as well:
+
+```{r}
+library(datasets)
+str(airquality)
+```
+
+## Simulation
+### Generating Random Variables
+Functions for generating random variables for different kind of distribution patterns:
+
+- **rnorm**: generation of random Normal values with the given mean and standard deviation
+- **dnorm**: evaluate the Normal probability density (with the given mean/standard deviation) at a point (or vector of points)
+- **pnorm**: evaluate the cumulative distribution function for a Normal distribution
+- **rpois**: generation of random Poisson variables with a given rate
+
+Probability distribution functions usually have four fucntions associated with them. The functions start with:  
+
+- **d** for density
+- **r** for random number generation
+- **p** for cumulative distribution
+- **q** for quantile function
+
+```{r}
+# Here we generate the vector of random normal variables, with the
+# default stdev = 1 and mean = 0:
+x <- rnorm(5)
+x
+# And here is how we can modify the arguments of the function in
+#order to make it random normal variables with the mean 10 and stdev 2:
+x <- rnorm(5,20,2)
+summary(x)
+```
+
+It is very important to set the seed prior to using random number generations, so that you result are reproducible. The importance of reproducibility of your results were discussed in the previous lesson(If you get an error or a bug you need to be able to reproduce the result you got in order to analyze the problem)
+```{r}
+# You set the seed by providing any integer values to this function
+set.seed(1)
+rnorm(5)
+# Now you see that the second time we call rnorm the numbers are different
+rnorm(5)
+# However, if I reset the seed to be 1 again I will get the same
+# rnorm variables as i got the first time:
+set.seed(1)
+rnorm(5)
+```
+
+As it was said before there are of course other distributions that can be generated besides Normal distribution. For example, let's take Poisson distribution:
+```{r}
+x<-rpois(15,1)
+x
+summary(x)
+```
+
+### Generating Random Numbers from a Linear Model
+
+Suppose we want to simulate from the following linear model:  
+$$y=\beta_0 + \beta_1x+\varepsilon$$  
+where $\varepsilon \sim N(0,2^2)$ (normal distribution with stdev 2). Assume $x \sim N(0,1^2), \beta_0=0.5,\beta_1=2$
+```{r}
+set.seed(20)
+x<-rnorm(100)
+e<-rnorm(100,0,2)
+y<-0.5+2*x+e
+summary(y)
+plot(x,y)
+```
+\newpage
+You can also use the same approach for other types of distributions. For example, let's assume you need a binomial distribution (ex. genders). 
+```{r}
+set.seed(10)
+x<-rbinom(100,1,0.5)
+e<-rnorm(100,0,2)
+y<-0.5+2*x+e
+summary(y)
+plot(x,y)
+```
+\newpage
+Now let's take a mre complicated model as an example. Let's take Poisson distribution where:
+$$Y \sim Poisson(\mu)$$
+$$log(\mu) = \beta_0+\beta_1*x$$
+$$\beta_0=0.5,\beta_1=0.3$$
+```{r}
+set.seed(1)
+x<-rnorm(100)
+log.mu<-0.5+0.3*x
+y<-rpois(100,exp(log.mu))
+summary(y)
+plot(x,y)
+```
+
+### Random Sampling
+The **sample** function draws randomly from a specified set of scalar objects allowing you to sample from arbitrary distributions. For example:
+```{r}
+set.seed(1)
+# Let's suppose we need 4 random integers from the range of 1 to 10
+sample(1:10,4)
+# Of course it could be not only numbers
+sample(letters, 5)
+# If you wont specify the number of elements to sample, you would
+# get a permutation of numbers in a range
+sample(1:10)
+# You can also make samples with repetitions(replacement)
+sample(1:10,replace = TRUE)
+```
+
+## R Profiler
+ 
+Profiling is a systematic way to examine how much time is spend in different parts of a program. It is useful when trying to optimize the code, because for example even if your current code runs fine, when you have to put it into a larger system or have to iterate through it, let's say 5000 times, will this be fast enough?  
+However, what you need to always remember is that optimizing your code should really be the LAST thing you do!
+
+### Using system.time()
+system.time() - takes an arbitrary expression and returns the amount of time taken to evaluate the expression.  
+
+-  If there is an error in the code, it will return the time until the error occured
+- **user time**: time charged to the CPU(s) for this expression
+- **elapsed time**: "wall clock" time, or in other words the time that you experience
+
+Usually, the user time and elapsed time are relatively the same, for straight computing tasks.  
+
+- Elapsed time is greater if the CPU spends a lot of time waiting around (for example for other backfround tasks to complete)
+- Elapsed time is smaller if you machine uses multiple cores/processors. It usually happens when Multi-threaded BLAS(Basic Linear Algebra Stadard libraries) libraries are used or parallel processing via the parallel package
+```{r}
+# Elapsed time > user time (because in this case it also depends on 
+# the internet connection etc)
+system.time(readLines("http://www.jhsph.edu"))
+```
+You can also put the larger pieces of code into system.time() function by providing it in curly braces:
+```{r}
+system.time({
+  r<-numeric(1000)
+  for (i in 1:1000){
+    a<-rnorm(1000)
+    r[i]<-mean(x)
+  }
+})
+```
+Note however, that system.time() function assumes that you already know where the problem is and can call the function on it.   
+But what if you don't know?
+
+### Using Rprof()
+The Rprof() function starts the R profiler  
+
+- R must be compiled with profiler support(but usually this is already the case)
+- The summaryRprof() function summarizes the output from Rprof(otherwise it is not readable)  
+**DO NOT use system.time() and Rprof() together or you'll be sad**
+
+Since the output of the Rprof() function isn't quite readable we need to use summaryRprof():  
+
+- It tabulates the R profiler output and calculates how much time is spend in which function
+- There are two methods for normalizing the data:
+- "by.total": divides the tome spend in each function by the total run time
+- "by.self": does the same but first subtracts out time spent in functions above in the call stack
